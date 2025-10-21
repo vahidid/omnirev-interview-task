@@ -1,4 +1,6 @@
+"use client";
 import RangeCalendar from "@/components/range-calendar";
+import { MultiSelect, MultiSelectOption } from "@/components/ui/multi-select";
 import {
 	SelectTrigger,
 	SelectValue,
@@ -8,8 +10,20 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useGetMarket } from "@/hooks/query";
+import { useMemo } from "react";
 
 export default function DashboardFilter() {
+	const marketsQuery = useGetMarket();
+
+	const markets = useMemo<MultiSelectOption[]>(
+		() =>
+			marketsQuery.data?.data?.map(
+				(market) => ({ label: market, value: market } as MultiSelectOption)
+			) || [],
+		[marketsQuery.data]
+	);
+
 	return (
 		<div className=" flex items-center gap-2">
 			<ToggleGroup type="single" variant="outline" spacing={2}>
@@ -34,16 +48,14 @@ export default function DashboardFilter() {
 			</ToggleGroup>
 			<RangeCalendar />
 			<Separator orientation="vertical" />
-			<Select>
-				<SelectTrigger className="w-[180px]">
-					<SelectValue placeholder="Theme" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value="light">Light</SelectItem>
-					<SelectItem value="dark">Dark</SelectItem>
-					<SelectItem value="system">System</SelectItem>
-				</SelectContent>
-			</Select>
+			<MultiSelect
+				className="flex-1"
+				options={markets}
+				hideSelectAll
+				deduplicateOptions
+				searchable={false}
+				onValueChange={() => console.log("Change value")}
+			/>
 		</div>
 	);
 }

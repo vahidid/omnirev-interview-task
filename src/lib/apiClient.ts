@@ -4,7 +4,7 @@ import axios from "axios";
 
 const apiClient = axios.create({
 	baseURL: API_URL,
-	withCredentials: true,
+	// withCredentials: true,
 });
 
 apiClient.interceptors.request.use(async (config) => {
