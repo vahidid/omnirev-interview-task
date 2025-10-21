@@ -1,49 +1,32 @@
 "use client";
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-	ChartConfig,
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Pie, LabelList, PieChart, Legend } from "recharts";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { useGetCategoriesStats } from "@/hooks/query";
+import { removePercentageMark } from "@/utils/strings";
+import { useMemo } from "react";
+import { Pie, LabelList, PieChart, Legend, Cell, Label } from "recharts";
 
-const chartData = [
-	{ browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-	{ browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-	{ browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-	{ browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-	{ browser: "other", visitors: 90, fill: "var(--color-other)" },
+const COLORS = [
+	"var(--chart-1)",
+	"var(--chart-2)",
+	"var(--chart-3)",
+	"var(--chart-4)",
+	"var(--chart-5)",
 ];
 
-const chartConfig = {
-	visitors: {
-		label: "Visitors",
-	},
-	chrome: {
-		label: "Chrome",
-		color: "var(--chart-1)",
-	},
-	safari: {
-		label: "Safari",
-		color: "var(--chart-2)",
-	},
-	firefox: {
-		label: "Firefox",
-		color: "var(--chart-3)",
-	},
-	edge: {
-		label: "Edge",
-		color: "var(--chart-4)",
-	},
-	other: {
-		label: "Other",
-		color: "var(--chart-5)",
-	},
-} satisfies ChartConfig;
-
 export default function CompaniesChart() {
+	const categoriesQuery = useGetCategoriesStats();
+
+	const categoriesRes = useMemo(
+		() =>
+			Object.entries(categoriesQuery.data?.data || {}).map((item, index) => ({
+				category: item[0],
+				percentage: removePercentageMark(item[1]),
+				fill: COLORS[index % COLORS.length],
+			})),
+		[categoriesQuery.data]
+	);
+
 	return (
 		<Card>
 			<CardHeader>
@@ -51,25 +34,47 @@ export default function CompaniesChart() {
 			</CardHeader>
 			<CardContent>
 				<ChartContainer
-					config={chartConfig}
+					config={{} satisfies ChartConfig}
 					className="[&_.recharts-text]:fill-background mx-auto aspect-square max-h-[350px]"
 				>
 					<PieChart>
-						<ChartTooltip
-							content={<ChartTooltipContent nameKey="visitors" hideLabel />}
-						/>
-						<Pie data={chartData} dataKey="visitors">
+						<Pie data={categoriesRes} dataKey="percentage">
+							<Label value="test" position="outside" />
 							<LabelList
-								dataKey="browser"
+								dataKey="percentage"
 								className="fill-background"
 								stroke="none"
 								fontSize={12}
-								formatter={(value: keyof typeof chartConfig) =>
-									chartConfig[value]?.label
-								}
+								formatter={(value: string) => {
+									return `${value}%`;
+								}}
 							/>
 						</Pie>
-						<Legend layout="vertical" verticalAlign="middle" align="right" />
+						<Legend
+							content={({ payload }) => (
+								<ul className="flex flex-col gap-2">
+									{payload?.map((entry, index) => (
+										<li
+											key={`item-${index}`}
+											className="flex items-center gap-2 text-sm"
+										>
+											<span
+												className="inline-block h-3 w-3 rounded-sm"
+												style={{ backgroundColor: entry.color }}
+											></span>
+											{/* @ts-ignore */}
+											{entry.payload?.category || ""}
+										</li>
+									))}
+								</ul>
+							)}
+							layout="vertical"
+							verticalAlign="middle"
+							align="right"
+							formatter={(v) => {
+								return categoriesRes[v].category;
+							}}
+						/>
 					</PieChart>
 				</ChartContainer>
 			</CardContent>

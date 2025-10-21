@@ -1,6 +1,6 @@
 import queryKeys from "@/lib/queryKeys";
 import { GetContactsService } from "@/services/contacts";
-import { GetMarketService } from "@/services/market";
+import { GetCategoriesStatService, GetMarketService } from "@/services/market";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetContacts = (params?: ContactsQueryParameters) =>
@@ -13,4 +13,10 @@ export const useGetMarket = () =>
 	useQuery({
 		queryKey: [queryKeys.GetMarkets],
 		queryFn: () => GetMarketService(),
+	});
+
+export const useGetCategoriesStats = () =>
+	useQuery({
+		queryKey: [queryKeys.GetCategoriesStats],
+		queryFn: () => GetCategoriesStatService(),
 	});
