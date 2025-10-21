@@ -30,7 +30,7 @@ export default function CompaniesChart() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Companies</CardTitle>
+				<CardTitle>Categories</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<ChartContainer

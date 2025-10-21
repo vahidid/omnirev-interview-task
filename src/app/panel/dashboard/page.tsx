@@ -1,4 +1,4 @@
-import CompaniesChart from "@/features/dashboard/companies-chart";
+import CategoriesChart from "@/features/dashboard/categories-chart";
 import HighValueCustomer from "@/features/dashboard/high-value-customers";
 import DashboardFilter from "@/features/dashboard/filter";
 
@@ -10,7 +10,7 @@ export default function Page() {
 				<DashboardFilter />
 			</div>
 			<div className="grid auto-rows-min gap-4 md:grid-cols-2">
-				<CompaniesChart />
+				<CategoriesChart />
 				<HighValueCustomer />
 			</div>
 		</div>
