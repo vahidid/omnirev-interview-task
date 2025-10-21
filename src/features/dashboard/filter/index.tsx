@@ -12,8 +12,20 @@ import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useGetMarket } from "@/hooks/query";
 import { useMemo } from "react";
+import { DashboardFilterProps } from "./types";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
 
-export default function DashboardFilter() {
+const formScheme = z.object({
+	created_at_before: z.iso.date(),
+	created_at_after: z.iso.date(),
+});
+
+export default function DashboardFilter(props: DashboardFilterProps) {
+	const { filters, onChangeFilter } = props;
+
 	const marketsQuery = useGetMarket();
 
 	const markets = useMemo<MultiSelectOption[]>(
@@ -24,38 +36,58 @@ export default function DashboardFilter() {
 		[marketsQuery.data]
 	);
 
+	// Form
+	const form = useForm<z.infer<typeof formScheme>>({
+		resolver: zodResolver(formScheme),
+	});
+
+	const onSubmit = (values: z.infer<typeof formScheme>) => {
+		console.log(values);
+	};
+
 	return (
-		<div className=" flex items-center gap-2">
-			<ToggleGroup type="single" variant="outline" spacing={2}>
-				<ToggleGroupItem
-					value="bold"
-					className="data-[state=on]:border-primary"
+		<Form {...form}>
+			<form
+				onSubmit={form.handleSubmit(onSubmit)}
+				className=" flex items-center gap-2"
+			>
+				<ToggleGroup
+					type="single"
+					variant="outline"
+					spacing={2}
+					onChange={(v) => console.log("v", v)}
+					onValueChange={(v) => console.log("Value", v)}
 				>
-					Yesterday
-				</ToggleGroupItem>
-				<ToggleGroupItem
-					value="italic"
-					className="data-[state=on]:border-primary"
-				>
-					7 Days
-				</ToggleGroupItem>
-				<ToggleGroupItem
-					value="strikethrough"
-					className="data-[state=on]:border-primary"
-				>
-					30 Days
-				</ToggleGroupItem>
-			</ToggleGroup>
-			<RangeCalendar />
-			<Separator orientation="vertical" />
-			<MultiSelect
-				className="flex-1"
-				options={markets}
-				hideSelectAll
-				deduplicateOptions
-				searchable={false}
-				onValueChange={() => console.log("Change value")}
-			/>
-		</div>
+					<ToggleGroupItem
+						value={new Date().toDateString()}
+						className="data-[state=on]:border-primary"
+					>
+						Yesterday
+					</ToggleGroupItem>
+					<ToggleGroupItem
+						value="italic"
+						className="data-[state=on]:border-primary"
+					>
+						7 Days
+					</ToggleGroupItem>
+					<ToggleGroupItem
+						value="strikethrough"
+						className="data-[state=on]:border-primary"
+					>
+						30 Days
+					</ToggleGroupItem>
+				</ToggleGroup>
+				<RangeCalendar />
+				<Separator orientation="vertical" />
+				<MultiSelect
+					className="flex-1"
+					options={markets}
+					hideSelectAll
+					deduplicateOptions
+					searchable={false}
+					onValueChange={() => console.log("Change value")}
+				/>
+			</form>
+		</Form>
 	);
 }
