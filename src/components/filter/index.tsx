@@ -1,9 +1,12 @@
 "use client";
 
 import {
+	ChangeEvent,
+	ChangeEventHandler,
 	memo,
 	useCallback,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 	useTransition,
@@ -27,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { SearchIcon } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { useDebounce } from "@/hooks/use-debounce";
 
 function Filter(props: FilterProps) {
 	const { fields } = props;
@@ -35,11 +39,15 @@ function Filter(props: FilterProps) {
 		Record<string, string | number | string[] | Date | null | undefined> &
 			DateRangeKeys
 	>({});
-
+	const searchTimeout = useRef<NodeJS.Timeout>(null);
 	// Utils
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
+	const isInternalNavRef = useRef(false);
+	const lastQsRef = useRef<string>(searchParams?.toString() || "");
+
+	const [, startTransition] = useTransition();
 
 	const parseFromSearch = useCallback(() => {
 		let newParams = {};
@@ -121,12 +129,24 @@ function Filter(props: FilterProps) {
 			[item.key]: value,
 		}));
 	}, []);
+	const handleChangeSearchInput = useCallback(
+		(e: ChangeEvent<HTMLInputElement>, item: Field) => {
+			// Implement debounce :)
+			if (searchTimeout.current) clearTimeout(searchTimeout.current);
 
-	const isInternalNavRef = useRef(false);
-	const lastQsRef = useRef<string>(searchParams?.toString() || "");
+			searchTimeout.current = setTimeout(
+				() =>
+					setFilterState((prev) => ({
+						...prev,
+						[item.key]: e.target.value,
+					})),
+				500
+			);
+		},
+		[searchTimeout]
+	);
 
-	const [, startTransition] = useTransition();
-
+	// Effects
 	useEffect(() => {
 		const currentQs = searchParams?.toString() || "";
 		const nextQs = createQueryString(filterState);
@@ -204,11 +224,14 @@ function Filter(props: FilterProps) {
 				if (item.type === FieldType.Search) {
 					return (
 						<InputGroup key={item.key}>
-							<InputGroupInput placeholder="Search..." />
+							<InputGroupInput
+								onChange={(e) => handleChangeSearchInput(e, item)}
+								placeholder="Search..."
+							/>
 							<InputGroupAddon align="inline-end">
-								<InputGroupButton>
+								<InputGroupAddon>
 									<SearchIcon />
-								</InputGroupButton>
+								</InputGroupAddon>
 							</InputGroupAddon>
 						</InputGroup>
 					);

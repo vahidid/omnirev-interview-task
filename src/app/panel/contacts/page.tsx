@@ -17,6 +17,7 @@ export default function ContactsPage() {
 		() => ({
 			status: (searchParams.get("status") as Status) ?? undefined,
 			market: searchParams.get("market") ?? undefined,
+			q: searchParams.get("q") ?? undefined,
 		}),
 		[searchParams]
 	);
