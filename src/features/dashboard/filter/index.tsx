@@ -1,31 +1,25 @@
 "use client";
 import RangeCalendar from "@/components/range-calendar";
 import { MultiSelect, MultiSelectOption } from "@/components/ui/multi-select";
-import {
-	SelectTrigger,
-	SelectValue,
-	SelectContent,
-	SelectItem,
-	Select,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useGetMarket } from "@/hooks/query";
-import { useMemo } from "react";
-import { DashboardFilterProps } from "./types";
-import { useForm } from "react-hook-form";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { StaticDateFilterItems } from "./types";
+import moment from "moment";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { DateRange } from "react-day-picker";
 
-const formScheme = z.object({
-	created_at_before: z.iso.date(),
-	created_at_after: z.iso.date(),
-});
+function DashboardFilter() {
+	// State
+	const [filters, setFilter] = useState<ContactsQueryParameters>({}); // use the original request as our model for filtering
 
-export default function DashboardFilter(props: DashboardFilterProps) {
-	const { filters, onChangeFilter } = props;
+	// Utils
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const pathname = usePathname();
 
+	// Query
 	const marketsQuery = useGetMarket();
 
 	const markets = useMemo<MultiSelectOption[]>(
@@ -36,58 +30,85 @@ export default function DashboardFilter(props: DashboardFilterProps) {
 		[marketsQuery.data]
 	);
 
-	// Form
-	const form = useForm<z.infer<typeof formScheme>>({
-		resolver: zodResolver(formScheme),
-	});
+	const dateRangeValue = useMemo(
+		() => ({
+			from: moment(filters.created_at_after || undefined).toDate(),
+			to: moment(filters.created_at_before || undefined).toDate(),
+		}),
+		[filters]
+	);
 
-	const onSubmit = (values: z.infer<typeof formScheme>) => {
-		console.log(values);
-	};
+	const handleStaticDates = useCallback((afterDate: string) => {
+		const nowDate = moment().format("YYYY-MM-DD");
+		setFilter({
+			created_at_before: nowDate,
+			created_at_after: afterDate || "",
+		});
+	}, []);
+
+	const handleRangeDates = useCallback((dateRange?: DateRange) => {
+		if (dateRange) {
+			const from = moment(dateRange.from).format("YYYY-MM-DD");
+			const to = moment(dateRange.to).format("YYYY-MM-DD");
+			setFilter({
+				created_at_before: to,
+				created_at_after: from,
+			});
+		}
+	}, []);
+
+	const createQueryString = useCallback(
+		(newParams: Record<string, string | null | any>) => {
+			const params = new URLSearchParams(searchParams.toString());
+
+			Object.entries(newParams).forEach(([key, value]) => {
+				if (value === null || value === undefined) {
+					params.delete(key); // remove param if value is null
+				} else {
+					params.set(key, value);
+				}
+			});
+
+			return params.toString();
+		},
+		[searchParams]
+	);
+
+	useEffect(() => {
+		const newParams = createQueryString(filters);
+		router.replace(`${pathname}?${newParams}`);
+	}, [filters]);
 
 	return (
-		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className=" flex items-center gap-2"
+		<div className=" flex items-center gap-2">
+			<ToggleGroup
+				type="single"
+				variant="outline"
+				spacing={2}
+				onValueChange={handleStaticDates}
 			>
-				<ToggleGroup
-					type="single"
-					variant="outline"
-					spacing={2}
-					onChange={(v) => console.log("v", v)}
-					onValueChange={(v) => console.log("Value", v)}
-				>
+				{StaticDateFilterItems.map((item) => (
 					<ToggleGroupItem
-						value={new Date().toDateString()}
+						key={item.value}
+						value={item.value}
 						className="data-[state=on]:border-primary"
 					>
-						Yesterday
+						{item.title}
 					</ToggleGroupItem>
-					<ToggleGroupItem
-						value="italic"
-						className="data-[state=on]:border-primary"
-					>
-						7 Days
-					</ToggleGroupItem>
-					<ToggleGroupItem
-						value="strikethrough"
-						className="data-[state=on]:border-primary"
-					>
-						30 Days
-					</ToggleGroupItem>
-				</ToggleGroup>
-				<RangeCalendar />
-				<Separator orientation="vertical" />
-				<MultiSelect
-					className="flex-1"
-					options={markets}
-					hideSelectAll
-					deduplicateOptions
-					searchable={false}
-					onValueChange={() => console.log("Change value")}
-				/>
-			</form>
-		</Form>
+				))}
+			</ToggleGroup>
+			<RangeCalendar range={dateRangeValue} setRange={handleRangeDates} />
+			<Separator orientation="vertical" />
+			<MultiSelect
+				className="flex-1"
+				options={markets}
+				hideSelectAll
+				deduplicateOptions
+				searchable={false}
+				onValueChange={(v) => console.log("Change value", v)}
+			/>
+		</div>
 	);
 }
+
+export default memo(DashboardFilter);

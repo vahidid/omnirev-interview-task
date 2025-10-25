@@ -12,15 +12,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { RangeCalendarProps } from "./types";
 
-export default function RangeCalendar() {
-	const [range, setRange] = React.useState<DateRange | undefined>(undefined);
+export default function RangeCalendar(props: RangeCalendarProps) {
+	const { range, setRange } = props;
 
 	return (
 		<div className="flex flex-col gap-3">
-			{/* <Label htmlFor="dates" className="px-1">
-				Select your stay
-			</Label> */}
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button

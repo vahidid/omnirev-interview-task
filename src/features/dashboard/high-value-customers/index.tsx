@@ -11,19 +11,46 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { useGetContacts } from "@/hooks/query";
-import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function HighValueCustomer() {
+	// State
+	const [filter, setFilter] = useState<ContactsQueryParameters>({});
+
+	// Utils
+	const searchParams = useSearchParams();
+
+	const setFilterFromSearchParams = useCallback(() => {
+		const filterParams: ContactsQueryParameters = {};
+
+		if (searchParams.has("created_at_after"))
+			filterParams.created_at_after =
+				searchParams.get("created_at_after") ?? undefined;
+		if (searchParams.has("created_at_before"))
+			filterParams.created_at_before =
+				searchParams.get("created_at_before") ?? undefined;
+
+		setFilter(filterParams);
+	}, [searchParams]);
+
 	const contactsQuery = useGetContacts({
 		per_page: 10,
 		page: 1,
 		sort_by: "total_order_amount",
 		sort_order: "desc",
+		...filter,
 	});
 	const contacts = useMemo(
 		() => contactsQuery.data?.data.data || [],
 		[contactsQuery.data]
 	);
+
+	// Effects
+	useEffect(() => {
+		setFilterFromSearchParams();
+	}, [setFilterFromSearchParams]);
+
 	return (
 		<Card className="pb-0">
 			<CardHeader>

@@ -15,8 +15,8 @@ export const useGetMarket = () =>
 		queryFn: () => GetMarketService(),
 	});
 
-export const useGetCategoriesStats = () =>
+export const useGetCategoriesStats = (params?: ContactsQueryParameters) =>
 	useQuery({
-		queryKey: [queryKeys.GetCategoriesStats],
-		queryFn: () => GetCategoriesStatService(),
+		queryKey: [queryKeys.GetCategoriesStats, ...[params ? params : []]],
+		queryFn: () => GetCategoriesStatService(params),
 	});

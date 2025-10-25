@@ -3,7 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { useGetCategoriesStats } from "@/hooks/query";
 import { removePercentageMark } from "@/utils/strings";
-import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pie, LabelList, PieChart, Legend, Cell, Label } from "recharts";
 
 const COLORS = [
@@ -14,8 +15,26 @@ const COLORS = [
 	"var(--chart-5)",
 ];
 
-export default function CompaniesChart() {
-	const categoriesQuery = useGetCategoriesStats();
+export default function CategoriesChart() {
+	const [filter, setFilter] = useState<ContactsQueryParameters>({});
+
+	// Utils
+	const searchParams = useSearchParams();
+
+	const setFilterFromSearchParams = useCallback(() => {
+		const filterParams: ContactsQueryParameters = {};
+
+		if (searchParams.has("created_at_after"))
+			filterParams.created_at_after =
+				searchParams.get("created_at_after") ?? undefined;
+		if (searchParams.has("created_at_before"))
+			filterParams.created_at_before =
+				searchParams.get("created_at_before") ?? undefined;
+
+		setFilter(filterParams);
+	}, [searchParams]);
+
+	const categoriesQuery = useGetCategoriesStats(filter);
 
 	const categoriesRes = useMemo(
 		() =>
@@ -26,6 +45,10 @@ export default function CompaniesChart() {
 			})),
 		[categoriesQuery.data]
 	);
+
+	useEffect(() => {
+		setFilterFromSearchParams();
+	}, [setFilterFromSearchParams]);
 
 	return (
 		<Card>
