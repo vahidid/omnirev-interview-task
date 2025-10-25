@@ -1,10 +1,7 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
 import {
 	FormField,
 	FormItem,
-	FormLabel,
 	FormControl,
 	FormMessage,
 	Form,
@@ -16,10 +13,11 @@ import {
 	InputGroupButton,
 } from "@/components/ui/input-group";
 import { MultiSelect } from "@/components/ui/multi-select";
+import ContactsTable from "@/features/contacts/table";
+import { useGetContacts } from "@/hooks/query";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { ColumnDef } from "@tanstack/react-table";
 import { SearchIcon } from "lucide-react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -41,22 +39,15 @@ const formSchema = z.object({
 	status: z.enum([Status.Customer]).optional(),
 });
 
-export const columns: ColumnDef<Payment>[] = [
-	{
-		accessorKey: "status",
-		header: "Status",
-	},
-	{
-		accessorKey: "email",
-		header: "Email",
-	},
-	{
-		accessorKey: "amount",
-		header: "Amount",
-	},
-];
-
 export default function ContactsPage() {
+	// Query
+	const contactsQuery = useGetContacts();
+
+	const contacts = useMemo(
+		() => contactsQuery.data?.data.data || [],
+		[contactsQuery.data]
+	);
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 	});
@@ -67,8 +58,13 @@ export default function ContactsPage() {
 
 	return (
 		<div className="flex flex-1 flex-col gap-4 p-4">
-			<div className="flex-1">
-				<h1>Contacts</h1>
+			<div className="flex-1 space-y-2">
+				<h1 className="text-3xl font-bold">
+					Contacts{" "}
+					<span className="text-xl text-muted-foreground">
+						({contactsQuery.data?.data.pagination.total})
+					</span>
+				</h1>
 				<div className="flex justify-between">
 					<Form {...form}>
 						<form
@@ -118,20 +114,7 @@ export default function ContactsPage() {
 				</div>
 			</div>
 			<div className="grid auto-rows-min gap-4 md:grid-cols-1">
-				<DataTable
-					columns={columns}
-					data={
-						[
-							{
-								id: "728ed52f",
-								amount: 100,
-								status: "pending",
-								email: "m@example.com",
-							},
-							// ...
-						] as Payment[]
-					}
-				/>
+				<ContactsTable data={contacts} />
 			</div>
 		</div>
 	);
