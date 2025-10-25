@@ -30,6 +30,8 @@ export default function HighValueCustomer() {
 		if (searchParams.has("created_at_before"))
 			filterParams.created_at_before =
 				searchParams.get("created_at_before") ?? undefined;
+		if (searchParams.has("market"))
+			filterParams.market = searchParams.get("market") ?? undefined;
 
 		setFilter(filterParams);
 	}, [searchParams]);

@@ -9,6 +9,15 @@ import { StaticDateFilterItems } from "./types";
 import moment from "moment";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DateRange } from "react-day-picker";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 function DashboardFilter() {
 	// State
@@ -22,11 +31,8 @@ function DashboardFilter() {
 	// Query
 	const marketsQuery = useGetMarket();
 
-	const markets = useMemo<MultiSelectOption[]>(
-		() =>
-			marketsQuery.data?.data?.map(
-				(market) => ({ label: market, value: market } as MultiSelectOption)
-			) || [],
+	const markets = useMemo(
+		() => marketsQuery.data?.data || [],
 		[marketsQuery.data]
 	);
 
@@ -55,6 +61,9 @@ function DashboardFilter() {
 				created_at_after: from,
 			});
 		}
+	}, []);
+	const handleSelectMarket = useCallback((market: string) => {
+		setFilter((prev) => ({ ...prev, market }));
 	}, []);
 
 	const createQueryString = useCallback(
@@ -99,14 +108,21 @@ function DashboardFilter() {
 			</ToggleGroup>
 			<RangeCalendar range={dateRangeValue} setRange={handleRangeDates} />
 			<Separator orientation="vertical" />
-			<MultiSelect
-				className="flex-1"
-				options={markets}
-				hideSelectAll
-				deduplicateOptions
-				searchable={false}
-				onValueChange={(v) => console.log("Change value", v)}
-			/>
+			<Select onValueChange={handleSelectMarket}>
+				<SelectTrigger className="min-w-[180px]">
+					<SelectValue placeholder="Select a market" />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectGroup>
+						<SelectLabel>Markets</SelectLabel>
+						{markets.map((market) => (
+							<SelectItem key={market} value={market}>
+								{market}
+							</SelectItem>
+						))}
+					</SelectGroup>
+				</SelectContent>
+			</Select>
 		</div>
 	);
 }
