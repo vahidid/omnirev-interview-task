@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import moment from "moment";
+import { Status } from "./types";
 
 export const columns: ColumnDef<ContactResponse>[] = [
 	{
@@ -41,5 +42,20 @@ export const columns: ColumnDef<ContactResponse>[] = [
 		cell: ({ row }) => (
 			<span>{moment(row.original.created_at).format("MMM D, h:mm a")}</span>
 		),
+	},
+];
+
+export const statusOptions = [
+	{
+		value: Status.Customer,
+		label: "Customer",
+	},
+	{
+		value: Status.Potential,
+		label: "Potential",
+	},
+	{
+		value: Status.Lapsed,
+		label: "Lapsed",
 	},
 ];
