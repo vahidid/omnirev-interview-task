@@ -97,8 +97,13 @@ function Filter(props: FilterProps) {
 					} else {
 						newSearchParams.set(key, String(value));
 					}
+
+					if (key === "page" || key === "per_page") {
+						newSearchParams.delete(key);
+					}
 				}
 			}
+			
 
 			return newSearchParams.toString();
 		},

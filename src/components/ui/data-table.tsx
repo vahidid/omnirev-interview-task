@@ -18,56 +18,38 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useState, useMemo, useCallback, useEffect } from "react";
 import { DataTablePagination } from "./pagination";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useTransition,
+} from "react";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
-	page: number;
-	limit: number;
 	total_pages: number;
 }
+
+export type Pagination = { pageIndex: number; pageSize: number };
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
-	page,
-	limit,
 	total_pages,
 }: DataTableProps<TData, TValue>) {
-	// State
-	const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-		pageIndex: page,
-		pageSize: limit,
-	});
-
 	// Utils
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const pathname = usePathname();
-
-	const pagination = useMemo(
-		() => ({
-			pageIndex: pageIndex - 1,
-			pageSize,
-		}),
-		[pageIndex, pageSize]
-	);
-
-	const table = useReactTable({
-		data,
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		manualPagination: true,
-		onPaginationChange: setPagination,
-		pageCount: total_pages,
-		state: {
-			pagination,
-		},
+	// State
+	const [paginationState, setPaginationState] = useState<Pagination>({
+		pageIndex: Number(searchParams.get("page") ?? 0),
+		pageSize: Number(searchParams.get("per_page") ?? 10),
 	});
 
 	const createQueryString = useCallback(
@@ -87,23 +69,49 @@ export function DataTable<TData, TValue>({
 		[searchParams]
 	);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	// useEffect(() => {
-	// 	router.push(
-	// 		`${pathname}?${createQueryString({
-	// 			page: pageIndex,
-	// 			limit: pageSize,
-	// 		})}`
-	// 	);
-	// }, [pagination]);
+	const pagination = useMemo(
+		() => ({
+			pageIndex: paginationState.pageIndex,
+			pageSize: paginationState.pageSize,
+		}),
+		[paginationState.pageIndex, paginationState.pageSize]
+	);
 
-	// useEffect(() => {
-	// 	setPagination({
-	// 		pageIndex: page,
-	// 		pageSize: limit,
-	// 	});
-	// }, [page, limit]);
+	const table = useReactTable({
+		data,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		manualPagination: true,
+		onPaginationChange: setPaginationState,
+		pageCount: total_pages,
+		state: {
+			pagination: pagination,
+		},
+	});
 
+	useEffect(() => {
+		console.log("Change pagination", paginationState);
+	}, [paginationState]);
+
+	useEffect(() => {
+		router.push(
+			`${pathname}?${createQueryString({
+				page: paginationState.pageIndex,
+				per_page: paginationState.pageSize,
+			})}`
+		);
+	}, [paginationState.pageIndex, paginationState.pageSize]);
+
+	//   useEffect(() => {
+	//     setPagination({
+	//       pageIndex: page,
+	//       pageSize: limit,
+	//     });
+	//   }, [page, limit]);
+
+	// console.log("pagination", paginationState);
 	return (
 		<>
 			<div className="overflow-hidden ">

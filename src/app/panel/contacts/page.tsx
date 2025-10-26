@@ -74,8 +74,6 @@ export default function ContactsPage() {
 			</div>
 			<div className="grid auto-rows-min gap-4 md:grid-cols-1">
 				<ContactsTable
-					page={filterParams.page || 1}
-					limit={filterParams.per_page || 10}
 					data={contacts}
 					total_pages={contactsQuery.data?.data.pagination.total_pages || 0}
 				/>

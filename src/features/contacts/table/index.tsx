@@ -34,7 +34,7 @@ export const statusOptions = [
 ];
 
 function ContactsTable(props: ContactsTableProps) {
-	const { data, limit, page, total_pages } = props;
+	const { data, total_pages } = props;
 
 	const [selectedContact, setSelectedContact] = useState<ContactResponse>();
 
@@ -99,13 +99,7 @@ function ContactsTable(props: ContactsTableProps) {
 
 	return (
 		<>
-			<DataTable
-				limit={limit}
-				page={page}
-				total_pages={total_pages}
-				columns={columns}
-				data={data}
-			/>
+			<DataTable total_pages={total_pages} columns={columns} data={data} />
 			{Boolean(selectedContact) && (
 				<EditContactModal
 					selected={selectedContact}
