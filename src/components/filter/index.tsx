@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/select";
 import { SearchIcon } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
-import { useDebounce } from "@/hooks/use-debounce";
 
 function Filter(props: FilterProps) {
 	const { fields } = props;

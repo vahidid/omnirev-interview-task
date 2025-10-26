@@ -1,8 +1,7 @@
 "use client";
 import Filter from "@/components/filter";
 import { FieldType } from "@/components/filter/types";
-import ContactsTable from "@/features/contacts/table";
-import { statusOptions } from "@/features/contacts/table/column";
+import ContactsTable, { statusOptions } from "@/features/contacts/table";
 import { Status } from "@/features/contacts/table/types";
 import { useGetContacts, useGetMarket } from "@/hooks/query";
 
