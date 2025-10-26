@@ -96,7 +96,6 @@ function ContactsTable(props: ContactsTableProps) {
 					selected={selectedContact}
 					open={Boolean(selectedContact)}
 					onClose={() => setSelectedContact(undefined)}
-					onSuccessEdit={() => console.log("Success edit")}
 				/>
 			)}
 		</>

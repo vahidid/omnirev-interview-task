@@ -28,3 +28,13 @@ interface ContactsQueryParameters {
 	/** Sort direction (default: 'desc') */
 	sort_order?: "asc" | "desc";
 }
+
+
+interface ContactUpdateReq {
+	contactId: string;
+	first_name?: string;
+	last_name?: string;
+	email: string;
+	phone_number?: string;
+	source?: "CRM" | "Organic";
+}

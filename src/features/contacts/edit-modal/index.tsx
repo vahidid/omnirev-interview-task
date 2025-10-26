@@ -26,6 +26,11 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { PhoneInput } from "@/components/phone-input";
+import { ClientHandleError } from "@/lib/errors";
+import { useUpdateContact } from "@/hooks/mutation";
+import { useQueryClient } from "@tanstack/react-query";
+import queryKeys from "@/lib/queryKeys";
+import { toast } from "sonner";
 const formScheme = z.object({
 	first_name: z.string().optional(),
 	last_name: z.string().optional(),
@@ -36,6 +41,12 @@ const formScheme = z.object({
 
 export function EditContactModal(props: EditContactModalProps) {
 	const { open, onClose, selected } = props;
+
+	// Utils
+	const queryClient = useQueryClient();
+
+	// Mutation
+	const updateContactMutation = useUpdateContact();
 
 	// Form
 	const form = useForm<z.infer<typeof formScheme>>({
@@ -49,15 +60,30 @@ export function EditContactModal(props: EditContactModalProps) {
 		},
 	});
 
-	const onSubmit = (value: z.infer<typeof formScheme>) => {
-		console.log("Value", value);
+	const onSubmit = async (value: z.infer<typeof formScheme>) => {
+		try {
+			if (selected) {
+				await updateContactMutation.mutateAsync({
+					contactId: selected.id,
+					...value,
+				});
+
+				await queryClient.invalidateQueries({
+					queryKey: [queryKeys.GetContacts],
+				});
+				toast.success("Contact updated successfully.");
+				onClose();
+			}
+		} catch (error) {
+			ClientHandleError(error);
+		}
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<DialogContent className="w-full">
+			<DialogContent className="w-full">
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<DialogHeader>
 							<DialogTitle>Edit Contact</DialogTitle>
 						</DialogHeader>
@@ -134,15 +160,17 @@ export function EditContactModal(props: EditContactModalProps) {
 								)}
 							/>
 						</div>
-						<DialogFooter>
+						<DialogFooter className="gap-4 pt-5">
 							<DialogClose asChild>
 								<Button variant="outline">Cancel</Button>
 							</DialogClose>
-							<Button type="submit">Update</Button>
+							<Button isLoading={updateContactMutation.isPending} type="submit">
+								Update
+							</Button>
 						</DialogFooter>
-					</DialogContent>
-				</form>
-			</Form>
+					</form>
+				</Form>
+			</DialogContent>
 		</Dialog>
 	);
 }
