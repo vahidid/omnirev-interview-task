@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		try {
 			await LogoutAction();
 		} catch (error) {
-			ClientHandleError(error);
+			console.error("Error in logout: ", error);
 		}
 	};
 	return (
