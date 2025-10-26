@@ -2,13 +2,21 @@
 
 import { DataTable } from "@/components/ui/data-table";
 import { ContactsTableProps, Status } from "./types";
-import { ColumnDef } from "@tanstack/react-table";
+import {
+	ColumnDef,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	PaginationState,
+	useReactTable,
+} from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import moment from "moment";
 import { useMemo, useState } from "react";
 import { EditContactModal } from "../edit-modal";
 import { Button } from "@/components/ui/button";
 import { PencilLine } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export const statusOptions = [
 	{
@@ -26,7 +34,7 @@ export const statusOptions = [
 ];
 
 function ContactsTable(props: ContactsTableProps) {
-	const { data } = props;
+	const { data, limit, page, total_pages } = props;
 
 	const [selectedContact, setSelectedContact] = useState<ContactResponse>();
 
@@ -88,9 +96,16 @@ function ContactsTable(props: ContactsTableProps) {
 		],
 		[]
 	);
+
 	return (
 		<>
-			<DataTable columns={columns} data={data} />;
+			<DataTable
+				limit={limit}
+				page={page}
+				total_pages={total_pages}
+				columns={columns}
+				data={data}
+			/>
 			{Boolean(selectedContact) && (
 				<EditContactModal
 					selected={selectedContact}

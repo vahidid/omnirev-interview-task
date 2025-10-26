@@ -17,6 +17,12 @@ export default function ContactsPage() {
 			status: (searchParams.get("status") as Status) ?? undefined,
 			market: searchParams.get("market") ?? undefined,
 			q: searchParams.get("q") ?? undefined,
+			page: Number.isInteger(searchParams.get("page"))
+				? Number(searchParams.get("page"))
+				: 1,
+			per_page: Number.isInteger(searchParams.get("per_page"))
+				? Number(searchParams.get("per_page"))
+				: 10,
 		}),
 		[searchParams]
 	);
@@ -67,7 +73,12 @@ export default function ContactsPage() {
 				/>
 			</div>
 			<div className="grid auto-rows-min gap-4 md:grid-cols-1">
-				<ContactsTable data={contacts} />
+				<ContactsTable
+					page={filterParams.page || 1}
+					limit={filterParams.per_page || 10}
+					data={contacts}
+					total_pages={contactsQuery.data?.data.pagination.total_pages || 0}
+				/>
 			</div>
 		</div>
 	);
