@@ -2,11 +2,9 @@
 
 import {
 	ChangeEvent,
-	ChangeEventHandler,
 	memo,
 	useCallback,
 	useEffect,
-	useMemo,
 	useRef,
 	useState,
 	useTransition,
@@ -18,7 +16,6 @@ import RangeCalendar from "../range-calendar";
 import {
 	InputGroup,
 	InputGroupAddon,
-	InputGroupButton,
 	InputGroupInput,
 } from "../ui/input-group";
 import {
@@ -187,6 +184,7 @@ function Filter(props: FilterProps) {
 				if (item.type === FieldType.DateRange) {
 					return (
 						<RangeCalendar
+							key={item.key}
 							range={{
 								from: filterState?.created_at_after,
 								to: filterState?.created_at_before,

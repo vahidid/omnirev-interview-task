@@ -14,7 +14,7 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar";
 import LogoVector from "./logo";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { LogoutAction } from "@/services/action/auth-action";
@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		try {
 			await LogoutAction();
 		} catch (error) {
-			ClientHandleError;
+			ClientHandleError(error);
 		}
 	};
 	return (

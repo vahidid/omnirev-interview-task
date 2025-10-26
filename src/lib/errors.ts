@@ -30,8 +30,7 @@ export class AppError extends Error {
 		);
 	}
 }
-// biome-ignore lint/suspicious/noExplicitAny: Handle multi Error instance
-export function ServerHandleError(error: any) {
+export function ServerHandleError(error: unknown) {
 	console.error("ServerHandleError: ", error);
 	if (error instanceof Error) {
 		// Log the error
@@ -49,8 +48,7 @@ export function ServerHandleError(error: any) {
 
 	throw new AppError("Server Error");
 }
-// biome-ignore lint/suspicious/noExplicitAny: Handle multi Error instance
-export function ClientHandleError(error: any) {
+export function ClientHandleError(error: unknown) {
 	console.error("Client Error >> ", error);
 	// Handle Axios Error
 	if (error instanceof AxiosError) {

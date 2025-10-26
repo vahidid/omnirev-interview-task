@@ -87,7 +87,7 @@ export default function CategoriesChart() {
 												className="inline-block h-3 w-3 rounded-sm"
 												style={{ backgroundColor: entry.color }}
 											></span>
-											{/* @ts-ignore */}
+											{/* @ts-expect-error handle chart payload type */}
 											{entry.payload?.category || ""}
 										</li>
 									))}
