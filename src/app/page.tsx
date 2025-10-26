@@ -9,5 +9,5 @@ export default async function RootPage() {
 		return redirect("/panel/dashboard");
 	}
 
-	return <></>;
+	return redirect("/login");
 }
