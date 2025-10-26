@@ -92,10 +92,6 @@ export function DataTable<TData, TValue>({
 	});
 
 	useEffect(() => {
-		console.log("Change pagination", paginationState);
-	}, [paginationState]);
-
-	useEffect(() => {
 		router.push(
 			`${pathname}?${createQueryString({
 				page: paginationState.pageIndex,
@@ -104,14 +100,6 @@ export function DataTable<TData, TValue>({
 		);
 	}, [paginationState.pageIndex, paginationState.pageSize]);
 
-	//   useEffect(() => {
-	//     setPagination({
-	//       pageIndex: page,
-	//       pageSize: limit,
-	//     });
-	//   }, [page, limit]);
-
-	// console.log("pagination", paginationState);
 	return (
 		<>
 			<div className="overflow-hidden ">

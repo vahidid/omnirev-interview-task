@@ -88,6 +88,9 @@ function Filter(props: FilterProps) {
 				if (value === null || !value) {
 					newSearchParams.delete(key);
 				} else {
+					if (key === "page" || key === "per_page") {
+						continue;
+					}
 					// Pass the stringified ISO 8106 format to search params
 					if (key === "created_at_after" || key === "created_at_before") {
 						newSearchParams.set(
@@ -96,10 +99,6 @@ function Filter(props: FilterProps) {
 						);
 					} else {
 						newSearchParams.set(key, String(value));
-					}
-
-					if (key === "page" || key === "per_page") {
-						newSearchParams.delete(key);
 					}
 				}
 			}

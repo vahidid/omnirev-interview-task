@@ -17,12 +17,8 @@ export default function ContactsPage() {
 			status: (searchParams.get("status") as Status) ?? undefined,
 			market: searchParams.get("market") ?? undefined,
 			q: searchParams.get("q") ?? undefined,
-			page: Number.isInteger(searchParams.get("page"))
-				? Number(searchParams.get("page"))
-				: 1,
-			per_page: Number.isInteger(searchParams.get("per_page"))
-				? Number(searchParams.get("per_page"))
-				: 10,
+			page: Number(searchParams.get("page") ?? 1),
+			per_page: Number(searchParams.get("per_page") ?? 50),
 		}),
 		[searchParams]
 	);
