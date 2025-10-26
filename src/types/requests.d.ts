@@ -38,3 +38,9 @@ interface ContactUpdateReq {
 	phone_number?: string;
 	source?: "CRM" | "Organic";
 }
+
+
+interface LoginReq {
+	username: string;
+	password: string;
+}

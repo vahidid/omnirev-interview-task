@@ -8,24 +8,26 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config) => {
-	if (isServer) {
-		const cookies = (await import("next/headers")).cookies;
+	/* Mock Server don't support the Authorization header and it get CORS error */
 
-		const c = await cookies();
-		const token = c.get(ACCESS_TOKEN_KEY);
-		if (token && config?.headers) {
-			config.headers.Authorization = `${token}`;
-		}
-		// biome-ignore lint/suspicious/noDoubleEquals: <explanation>
-	} else if (window != undefined) {
-		const cookieValue = document.cookie
-			.split("; ")
-			.find((row) => row.startsWith(`${ACCESS_TOKEN_KEY}=`))
-			?.split("=")[1];
-		if (cookieValue && config?.headers) {
-			config.headers.Authorization = `${cookieValue}`;
-		}
-	}
+	// if (isServer) {
+	// 	const cookies = (await import("next/headers")).cookies;
+
+	// 	const c = await cookies();
+	// 	const token = c.get(ACCESS_TOKEN_KEY);
+	// 	if (token && config?.headers) {
+	// 		config.headers.Authorization = `${token}`;
+	// 	}
+	// 	// biome-ignore lint/suspicious/noDoubleEquals: <explanation>
+	// } else if (window != undefined) {
+	// 	const cookieValue = document.cookie
+	// 		.split("; ")
+	// 		.find((row) => row.startsWith(`${ACCESS_TOKEN_KEY}=`))
+	// 		?.split("=")[1];
+	// 	if (cookieValue && config?.headers) {
+	// 		config.headers.Authorization = `${cookieValue}`;
+	// 	}
+	// }
 
 	return config;
 });

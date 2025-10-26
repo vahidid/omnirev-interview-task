@@ -35,3 +35,9 @@ interface ContactResponse {
 	/** Total monetary amount of all orders placed by the user */
 	total_order_amount: number;
 }
+
+
+interface LoginRes {
+	token: string;
+	username: string;
+}
