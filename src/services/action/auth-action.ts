@@ -24,8 +24,7 @@ export async function LoginAction(req: LoginReq) {
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			throw new AppError(
-				error.response?.data?.error || "کد تایید اشتباه است.",
-				error.response?.data?.error
+				error.response?.data?.error || "Credentials are not valid"
 			);
 		}
 		throw error;

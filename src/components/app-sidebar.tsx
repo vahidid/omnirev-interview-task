@@ -3,6 +3,7 @@ import * as React from "react";
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarGroupLabel,
@@ -15,6 +16,9 @@ import {
 import LogoVector from "./logo";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { LogOut } from "lucide-react";
+import { LogoutAction } from "@/services/action/auth-action";
+import { ClientHandleError } from "@/lib/errors";
 
 // This is sample data.
 const data = {
@@ -39,6 +43,13 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
 
+	const handleLogout = async () => {
+		try {
+			await LogoutAction();
+		} catch (error) {
+			ClientHandleError;
+		}
+	};
 	return (
 		<Sidebar {...props}>
 			<SidebarHeader>
@@ -66,6 +77,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</SidebarGroup>
 				))}
 			</SidebarContent>
+			<SidebarFooter>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton
+							variant="default"
+							className="text-destructive"
+							onClick={handleLogout}
+						>
+							<LogOut />
+							<span>Logout</span>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
 	);

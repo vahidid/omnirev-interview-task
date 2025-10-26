@@ -4,11 +4,19 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { ACCESS_TOKEN_KEY } from "@/utils/constants";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { PropsWithChildren } from "react";
 
-export default function PanelLayout(props: PropsWithChildren) {
+export default async function PanelLayout(props: PropsWithChildren) {
 	const { children } = props;
 
+	const c = await cookies();
+
+	if (!c.has(ACCESS_TOKEN_KEY)) {
+		return redirect("/login");
+	}
 	return (
 		<SidebarProvider>
 			<AppSidebar />
